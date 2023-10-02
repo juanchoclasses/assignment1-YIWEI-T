@@ -308,11 +308,11 @@ export class SpreadSheetController {
    * 
    */
   clearFormula(user: string): void {
-    if (!this._contributingUsers.has(user)) {
-      return;
-    }
     const userEditing = this._contributingUsers.get(user);
     if (!userEditing) {
+      return;
+    }
+    if (!userEditing!.isEditing) {
       return;
     }
     if (userEditing.cellLabel === '') {

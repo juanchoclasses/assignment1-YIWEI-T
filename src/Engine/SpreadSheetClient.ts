@@ -17,7 +17,8 @@ import { PortsGlobal } from '../PortsGlobal';
 
 class SpreadSheetClient {
     private _serverPort: number = PortsGlobal.serverPort;
-    private _baseURL: string = `http://pencil.local:${this._serverPort}`;
+    // private _baseURL: string = `http://pencil.local:${this._serverPort}`;
+    private _baseURL: string = `http://localhost:${this._serverPort}`;
     private _userName: string = 'juancho';
     private _documentName: string = 'test';
     private _document: DocumentTransport;
@@ -209,6 +210,11 @@ class SpreadSheetClient {
 
 
     public addToken(token: string): void {
+        if(token === '/') {
+            token = '%2F';
+        } else if(token === '.') {
+            token = 'point';
+        }
         const requestAddTokenURL = `${this._baseURL}/document/addtoken/${this._documentName}/${token}`;
         fetch(requestAddTokenURL, {
             method: 'PUT',
@@ -280,10 +286,20 @@ class SpreadSheetClient {
     }
 
     public clearFormula(): void {
-        return;
+        const requestClearFormulaURL = `${this._baseURL}/document/clear/formula/${this._documentName}`;
+        fetch(requestClearFormulaURL, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ "userName": this._userName })
+        })
+            .then(response => {
+                return response.json() as Promise<DocumentTransport>;
+            }).then((document: DocumentTransport) => {
+                this._updateDocument(document);
+            });
     }
-
-
 
     /**
      * get the document from the server
