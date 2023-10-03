@@ -19,28 +19,9 @@ export class FormulaEvaluator {
   }
 
   /**
-    * place holder for the evaluator.   I am not sure what the type of the formula is yet 
-    * I do know that there will be a list of tokens so i will return the length of the array
-    * 
-    * I also need to test the error display in the front end so i will set the error message to
-    * the error messages found In GlobalDefinitions.ts
-    * 
-    * according to this formula.
-    * 
-    7 tokens partial: "#ERR",
-    8 tokens divideByZero: "#DIV/0!",
-    9 tokens invalidCell: "#REF!",
-  10 tokens invalidFormula: "#ERR",
-  11 tokens invalidNumber: "#ERR",
-  12 tokens invalidOperator: "#ERR",
-  13 missingParentheses: "#ERR",
-  0 tokens emptyFormula: "#EMPTY!",
-
-                    When i get back from my quest to save the world from the evil thing i will fix.
-                      (if you are in a hurry you can fix it yourself)
-                               Sincerely 
-                               Bilbo
-    * 
+   * Evaluates a given formula, replacing cell references with their respective values
+   * and calculating the result, while also handling various error scenarios.
+   * 
    */
 
   evaluate(formula1: FormulaType) {
@@ -48,6 +29,7 @@ export class FormulaEvaluator {
     this._result = Infinity;
     // replace cell value
     let arr = [];
+    // Define the valid columns for cell references
     const columns = ['A', 'B', 'C', 'D', 'E', 'H', 'I', 'J', 'K'];
     for (let i = 0; i < formula1.length; i++) {
       let value = formula1[i];
