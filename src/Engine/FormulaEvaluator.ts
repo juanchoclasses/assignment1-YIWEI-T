@@ -29,7 +29,6 @@ export class FormulaEvaluator {
     this._result = Infinity;
     // replace cell value
     let arr = [];
-    // Define the valid columns for cell references
     const columns = ['A', 'B', 'C', 'D', 'E', 'H', 'I', 'J', 'K'];
     for (let i = 0; i < formula1.length; i++) {
       let value = formula1[i];
@@ -68,13 +67,11 @@ export class FormulaEvaluator {
       return;
     }
     let a = this.calculateFun(formula)
-    if (a != null && isFinite(a)) {
-      this._result = a;
+    if (a[0] != null && a[1] != null) {
+      this._result = a[0];
+      this._errorMessage = a[1];
       return;
-    } else if (a != null && !isFinite(a)) {
-      this._errorMessage = ErrorMessages.divideByZero;
-      return;
-    }else {
+    } else {
       this._errorMessage = ErrorMessages.invalidFormula;
       return;
     }
@@ -85,7 +82,7 @@ export class FormulaEvaluator {
    * @returns null or number or DIV/0 exception
    */
   
-  calculateFun(expression: string[]): number|null {
+  calculateFun(expression: string[]): [number|null,string] {
     /*
       Operator Priority Definitions
     */
@@ -116,7 +113,7 @@ export class FormulaEvaluator {
         if (number.length > 0) {// If the length of number is greater than 0, it means that there is a spliced number that hasn't been pushed into the Postfix Notation.
           let floatNumber = parseFloat(number);
           if (floatNumber.toString() != number) { //Exceeds the precision of number Returns null directly, if it is .1, it will also return null to indicate that the expression is wrong.
-            return null;
+            return [null,ErrorMessages.invalidNumber];
           }
           postfix.push(floatNumber);
           number = "";
@@ -131,7 +128,7 @@ export class FormulaEvaluator {
           */
           while (operatorStack.length > 0 && operatorStack[operatorStack.length - 1] !== "(" && calculationalSymbols[token] <= calculationalSymbols[operatorStack[operatorStack.length - 1]]) {
             if(postfix.length < 2){// Preventing stack overflow exceptions
-              return null;
+              return [postfix[0],ErrorMessages.invalidFormula];
             }
             postfix.push(tokensMap[operatorStack.pop()!](postfix));
           }
@@ -144,7 +141,7 @@ export class FormulaEvaluator {
           */
           while (operatorStack.length > 0 && operatorStack[operatorStack.length - 1] !== "(") {
             if(postfix.length < 2){// Preventing stack overflow exceptions
-              return null;
+              return [postfix[0],ErrorMessages.invalidFormula];
             }
             postfix.push(tokensMap[operatorStack.pop()!](postfix));
           }
@@ -157,21 +154,27 @@ export class FormulaEvaluator {
     if (number.length > 0) {
       let floatNumber = parseFloat(number);
       if (floatNumber.toString() != number) { //Exceeds the precision of a number and returns null.
-        return null;
+        return [null,ErrorMessages.invalidNumber];
       }
       postfix.push(floatNumber);
     }
     // Pop the remaining operators in the stack and compute the Postfix Notation
     while (operatorStack.length > 0) {
       if(postfix.length < 2){// Preventing stack overflow exceptions
-        return null;
+        return [postfix[0],ErrorMessages.invalidFormula];
       }
       postfix.push(tokensMap[operatorStack.pop()!](postfix));
     }
+    if (postfix.length === 0){
+      return [0,ErrorMessages.missingParentheses];
+    }
     if (postfix.length === 1) {
-      return postfix[0];// Returns the result of the calculation
+      if (!isFinite(postfix[0])){
+        return [Infinity,ErrorMessages.divideByZero];
+      }
+      return [postfix[0],""];// Returns the result of the calculation
     } else {
-      return null;// Mismatch between the number of operands and the number of operators; return null to indicate that the computation failed
+      return [null,ErrorMessages.invalidFormula];;// Mismatch between the number of operands and the number of operators; return null to indicate that the computation failed
     }
   }
 
