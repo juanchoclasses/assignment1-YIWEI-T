@@ -14,5 +14,5 @@
     Yes, the comments explain each piece of code very clearly.
 
 - Are the function names self-explanatory?
-    Basically, yes.
+    Basically, yes. Some of the function names are not clear enough, but you can basically understand them after reading the code.
 
